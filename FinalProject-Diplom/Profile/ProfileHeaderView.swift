@@ -10,10 +10,7 @@ import UIKit
 final class ProfileHeaderView: UIView {
     
     private let imageViewHeight: CGFloat = 130
-    private var isExpanded = true
     private var statusText = readLine()
-    private var topStatusButtonConstraint: NSLayoutConstraint!
-    private var spacingStatusButton: NSLayoutConstraint!
     
     var heightImageViewCnstrnt: NSLayoutConstraint!
     var widthImageViewCnstrnt: NSLayoutConstraint!
@@ -55,7 +52,7 @@ final class ProfileHeaderView: UIView {
         let button = UIButton()
         button.layer.cornerRadius = 14
         button.backgroundColor = .systemBlue
-        button.setTitle("Show status", for: .normal)
+        button.setTitle("Set status", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.layer.shadowOffset = .init(width: 4, height: 4)
         button.layer.shadowRadius = 4
@@ -68,8 +65,6 @@ final class ProfileHeaderView: UIView {
     
     private lazy var statusTextField: UITextField = {
         let textField = UITextField()
-        textField.isHidden = true
-        textField.alpha = 0
         textField.returnKeyType = .continue
         textField.clearButtonMode = .always
         textField.autocapitalizationType = .words
@@ -118,8 +113,8 @@ final class ProfileHeaderView: UIView {
         let leadingStatusLabelCnstrnt = self.statusLabel.leadingAnchor.constraint(equalTo: self.avatarImageView.trailingAnchor, constant: 16)
         let trailingStatusLabelCnstrnt = self.statusLabel.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         
-        self.topStatusButtonConstraint = self.setStatusButton.topAnchor.constraint(equalTo: self.avatarImageView.bottomAnchor, constant: 16)
-        self.spacingStatusButton = self.setStatusButton.topAnchor.constraint(equalTo: self.statusLabel.bottomAnchor, constant: 34)
+        let topStatusButtonConstraint = self.setStatusButton.topAnchor.constraint(equalTo: self.avatarImageView.bottomAnchor, constant: 48)
+        let spacingStatusButton = self.setStatusButton.topAnchor.constraint(equalTo: self.statusLabel.bottomAnchor, constant: 72)
         let leadingSetStatusButtonCnstrnt = self.setStatusButton.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: 16)
         let trailingSetStatusButtonCnstrnt = self.setStatusButton.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         let heightSetStatusButtonCnstrnt = self.setStatusButton.heightAnchor.constraint(equalToConstant: 50)
@@ -130,33 +125,27 @@ final class ProfileHeaderView: UIView {
         let heightStatusTextFieldCnstrnt = self.statusTextField.heightAnchor.constraint(equalToConstant: 40)
         
         NSLayoutConstraint.activate([
-            topImageViewCnstrnt, leadingImageViewCnstrnt, widthImageViewCnstrnt, heightImageViewCnstrnt, topNameLabelCnstrnt, leadingNameLabelCnstrnt, trailingNameLabelCnstrnt, topStatusLabelCnstrnt, leadingStatusLabelCnstrnt, trailingStatusLabelCnstrnt, self.topStatusButtonConstraint, self.spacingStatusButton, leadingSetStatusButtonCnstrnt, trailingSetStatusButtonCnstrnt, heightSetStatusButtonCnstrnt, topStatusTextFieldCnstrnt, leadingStatusTextFieldCnstrnt, trailingStatusTextFieldCnstrnt, heightStatusTextFieldCnstrnt
+            topImageViewCnstrnt, leadingImageViewCnstrnt, widthImageViewCnstrnt, heightImageViewCnstrnt, topNameLabelCnstrnt, leadingNameLabelCnstrnt, trailingNameLabelCnstrnt, topStatusLabelCnstrnt, leadingStatusLabelCnstrnt, trailingStatusLabelCnstrnt, topStatusButtonConstraint, spacingStatusButton, leadingSetStatusButtonCnstrnt, trailingSetStatusButtonCnstrnt, heightSetStatusButtonCnstrnt, topStatusTextFieldCnstrnt, leadingStatusTextFieldCnstrnt, trailingStatusTextFieldCnstrnt, heightStatusTextFieldCnstrnt
         ])
     }
     
     @objc func statusChangeButtonPressed() {
-        self.topStatusButtonConstraint.constant = self.isExpanded ? 66 : 16
-        self.spacingStatusButton.constant = self.isExpanded ? 84 : 34
-        
-        UIView.animate(withDuration: 0.3) {
-            self.layoutIfNeeded()
-            if self.isExpanded {
-                self.setStatusButton.setTitle("Set status", for: .normal)
-                self.statusTextField.isHidden = false
-                self.statusTextField.alpha = 1
-            } else {
-                self.setStatusButton.setTitle("Show status", for: .normal)
-                self.statusTextField.isHidden = true
-                self.statusTextField.alpha = 0
-                if self.statusTextField.text == "" {
-                    return
+        if self.statusTextField.text == "" {
+            UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut) {
+                self.statusTextField.backgroundColor = UIColor(red: 255, green: 0, blue: 0, alpha: 0.5)
+                self.layoutIfNeeded()
+            } completion: { _ in
+                UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut) {
+                    self.statusTextField.backgroundColor = .white
                 }
-                self.statusLabel.text = self.statusText
             }
-        } completion: { _ in
-            self.isExpanded.toggle()
-        }
 
+            return
+        }
+        
+        self.statusLabel.text = self.statusText
+        self.statusTextField.text = ""
+        
         self.statusTextField.delegate = self
         self.endEditing(true)
     }
